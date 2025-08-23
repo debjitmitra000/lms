@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/authRoutes");
+const leadRoutes = require("./routes/leadRoutes")
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/leads", leadRoutes)
 
 
 app.use((err, req, res, next) => {
