@@ -17,3 +17,15 @@ lead routes ✅
 seed data ✅
 
 !!!! Backend Done !!!!
+
+pages setup ✅
+
+cors ✅
+axios setup ✅
+auth api ✅
+lead api ✅
+
+auth context ✅
+lead context ✅
+
+app.jsx route setup ✅
