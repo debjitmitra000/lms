@@ -12,6 +12,6 @@ lead model routes ✅
 lead controller routes ✅
 lead middleware routes ✅
 lead validator routes ✅
-lead auth routes ✅
+lead routes ✅
 
 seed data
