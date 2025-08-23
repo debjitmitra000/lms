@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/authRoutes");
-const leadRoutes = require("./routes/leadRoutes")
+const leadRoutes = require("./routes/leadRoutes");
 
 dotenv.config();
 

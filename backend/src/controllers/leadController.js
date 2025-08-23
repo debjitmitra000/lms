@@ -31,12 +31,12 @@ const getLeads = async (req, res) => {
     const filterQuery = buildFilterQuery(filters);
     filterQuery.user = req.user.userId;
 
-    const { skip, limitNum } = getPaginationData(page, limit);
+    const { skip, limitNum, pageNum } = getPaginationData(page, limit);
 
     const leads = await Lead.find(filterQuery)
       .skip(skip)
       .limit(limitNum)
-      .sort({ created_at: -1 });
+      .sort({ createdAt: -1 }); 
 
     const total = await Lead.countDocuments(filterQuery);
     const totalPages = Math.ceil(total / limitNum);
@@ -44,7 +44,7 @@ const getLeads = async (req, res) => {
     res.json({
       success: true,
       data: leads,
-      page: Number.parseInt(page),
+      page: pageNum, 
       limit: limitNum,
       total,
       totalPages,
