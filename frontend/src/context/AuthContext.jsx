@@ -1,5 +1,3 @@
-"use client"
-
 import { createContext, useContext, useReducer, useEffect } from "react"
 import { authApi } from "../api/authApi"
 

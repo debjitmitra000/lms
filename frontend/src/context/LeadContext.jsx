@@ -1,5 +1,3 @@
-"use client"
-
 import { createContext, useContext, useReducer } from "react"
 import { leadApi } from "../api/leadApi"
 
