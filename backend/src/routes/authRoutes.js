@@ -3,12 +3,16 @@ const {
   register,
   login,
   logout,
-  getCurrentUser 
+  getCurrentUser,
 } = require("../controllers/authController");
 const authMiddleware = require("../middlewares/authMiddleware");
-const { registerValidation, loginValidation } = require("../validators/authValidator");
-const { handleValidationErrors } = require("../middlewares/validationMiddleware");
-
+const {
+  registerValidation,
+  loginValidation,
+} = require("../validators/authValidator");
+const {
+  handleValidationErrors,
+} = require("../middlewares/validationMiddleware");
 
 const router = express.Router();
 
