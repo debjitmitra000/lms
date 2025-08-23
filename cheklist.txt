@@ -14,4 +14,6 @@ lead middleware routes ✅
 lead validator routes ✅
 lead routes ✅
 
-seed data
+seed data ✅
+
+!!!! Backend Done !!!!
