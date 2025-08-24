@@ -57,7 +57,11 @@ const Navbar = () => {
             <div className="flex items-center">
               <Link to="/dashboard" className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-[#8e24aa] rounded-lg flex items-center justify-center shadow-sm">
-                  <span className="text-white font-bold text-lg">L</span>
+                  <img 
+                    src="/icon.png" 
+                    alt="LMS Logo" 
+                    className="w-6 h-6 object-contain"
+                  />
                 </div>
                 <span className="text-xl font-bold text-[#8e24aa]">LMS</span>
               </Link>
