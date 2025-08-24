@@ -1,3 +1,4 @@
+// backend/src/controllers/authController.js
 const User = require("../models/User");
 const { generateToken } = require("../config/jwt");
 
@@ -20,11 +21,11 @@ const register = async (req, res) => {
     //token generating
     const token = generateToken(user._id);
 
-    //http cookie
+    //http cookie - Fixed for production
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
@@ -58,11 +59,11 @@ const login = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    //http cookie
+    //http cookie - Fixed for production
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
@@ -83,17 +84,24 @@ const login = async (req, res) => {
 const logout = (req, res) => {
   res.cookie("token", "", {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
     expires: new Date(0),
   });
   res.json({ success: true, message: "Logged out successfully" });
 };
 
-//currentuser
+//currentuser - FIXED THE MAIN ISSUE HERE
 const getCurrentUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select("-password");
+    // Try both possible JWT payload structures
+    const userId = req.user.userId || req.user._id || req.user;
+    const user = await User.findById(userId).select("-password");
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
     res.json({
       success: true,
       user: {
