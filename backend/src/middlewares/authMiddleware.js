@@ -3,22 +3,28 @@ const { verifyToken } = require("../config/jwt");
 
 const authMiddleware = (req, res, next) => {
   try {
-    // Try cookie first, then Authorization header as backup
-    let token = req.cookies.token;
+    // Debug: Check what cookies we're receiving
+    console.log("🍪 All cookies:", req.cookies);
     
+    let token = req.cookies.token;
+    let tokenSource = "cookie";
+    
+    // Fallback to Authorization header only if no cookie
     if (!token && req.headers.authorization) {
       token = req.headers.authorization.replace('Bearer ', '');
+      tokenSource = "header";
     }
 
     if (!token) {
       console.log("❌ No token found in cookies or headers");
+      console.log("Request from:", req.get('origin'));
       return res
         .status(401)
         .json({ message: "Access denied. No token provided." });
     }
 
     const decoded = verifyToken(token);
-    console.log("✅ Token verified, user:", decoded);
+    console.log(`✅ Token verified from ${tokenSource}, user:`, decoded);
     req.user = decoded;
     next();
   } catch (error) {

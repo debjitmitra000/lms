@@ -1,7 +1,7 @@
 // frontend/src/api/axiosInstance.js
 import axios from "axios"
 
-// Store token in memory as fallback
+// Store token in memory as fallback only
 let authToken = null;
 
 const axiosInstance = axios.create({
@@ -12,9 +12,10 @@ const axiosInstance = axios.create({
   },
 })
 
-// Request interceptor to add token to headers
+// Request interceptor - only add header if we have token AND cookies might be failing
 axiosInstance.interceptors.request.use((config) => {
-  if (authToken) {
+  // Only add Authorization header as backup, let cookies work first
+  if (authToken && config.headers && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${authToken}`;
   }
   return config;
@@ -22,18 +23,26 @@ axiosInstance.interceptors.request.use((config) => {
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    // Store token if received in response
+    // Store token from login/register responses
     if (response.data?.token) {
       authToken = response.data.token;
     }
     return response;
   },
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
-      authToken = null; // Clear invalid token
-      
       const currentPath = window.location.pathname
       const isAuthPage = currentPath.includes('/login') || currentPath.includes('/register')
+      
+      // If we're getting 401 on /auth/me and have a token, try one more time with header
+      if (!isAuthPage && authToken && error.config && !error.config._retry) {
+        error.config._retry = true;
+        error.config.headers.Authorization = `Bearer ${authToken}`;
+        return axiosInstance.request(error.config);
+      }
+      
+      // Clear token and redirect
+      authToken = null;
       
       if (!isAuthPage && !window.isRedirecting) {
         window.isRedirecting = true
