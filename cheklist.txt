@@ -35,3 +35,8 @@ full list  ✅
 pagination ✅
 filter ✅
 search ✅
+
+filter error solve ✅
+details page ✅
+not found ✅
+edit update page ✅

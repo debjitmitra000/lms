@@ -10,13 +10,7 @@ const LeadList = () => {
   const [currentFilters, setCurrentFilters] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
 
-  const colors = [
-    "#b3e5fc",
-    "#e1bee7",
-    "#ffe0b2",
-    "#a5d6a7",
-    "#ef9a9a"
-  ];
+  const colors = ["#b3e5fc", "#e1bee7", "#ffe0b2", "#a5d6a7", "#ef9a9a"];
   const colors2 = [
     "#8e24aa",
     "#26c6da",
@@ -89,6 +83,7 @@ const LeadList = () => {
   const getActiveFilterItems = () => {
     const filterItems = [];
 
+    //basic filters
     if (currentFilters.status) {
       filterItems.push({
         label: `Status: ${
@@ -120,6 +115,21 @@ const LeadList = () => {
       });
     }
 
+    if (currentFilters.city) {
+      filterItems.push({
+        label: `City: ${currentFilters.city}`,
+        onRemove: () => handleRemoveFilter("city"),
+      });
+    }
+
+    if (currentFilters.state) {
+      filterItems.push({
+        label: `State: ${currentFilters.state}`,
+        onRemove: () => handleRemoveFilter("state"),
+      });
+    }
+
+    //multi select filters
     if (currentFilters.status_in) {
       const statuses = currentFilters.status_in.split(",");
       filterItems.push({
@@ -145,74 +155,200 @@ const LeadList = () => {
       });
     }
 
-    if (currentFilters.city) {
+    if (currentFilters.city_in) {
+      const cities = currentFilters.city_in.split(",");
       filterItems.push({
-        label: `City: ${currentFilters.city}`,
-        onRemove: () => handleRemoveFilter("city"),
+        label: `Cities: ${cities.join(", ")}`,
+        onRemove: () => handleRemoveFilter("city_in"),
       });
     }
 
-    if (currentFilters.state) {
+    if (currentFilters.state_in) {
+      const states = currentFilters.state_in.split(",");
       filterItems.push({
-        label: `State: ${currentFilters.state}`,
-        onRemove: () => handleRemoveFilter("state"),
+        label: `States: ${states.join(", ")}`,
+        onRemove: () => handleRemoveFilter("state_in"),
       });
     }
 
-    if (currentFilters.created_after || currentFilters.created_before) {
-      let dateLabel = "Created: ";
-      if (currentFilters.created_after && currentFilters.created_before) {
-        dateLabel += `${new Date(
+    // String filters
+    if (currentFilters.email_equals) {
+      filterItems.push({
+        label: `Email Equals: ${currentFilters.email_equals}`,
+        onRemove: () => handleRemoveFilter("email_equals"),
+      });
+    }
+
+    if (currentFilters.email_contains) {
+      filterItems.push({
+        label: `Email Contains: ${currentFilters.email_contains}`,
+        onRemove: () => handleRemoveFilter("email_contains"),
+      });
+    }
+
+    if (currentFilters.company_equals) {
+      filterItems.push({
+        label: `Company Equals: ${currentFilters.company_equals}`,
+        onRemove: () => handleRemoveFilter("company_equals"),
+      });
+    }
+
+    if (currentFilters.company_contains) {
+      filterItems.push({
+        label: `Company Contains: ${currentFilters.company_contains}`,
+        onRemove: () => handleRemoveFilter("company_contains"),
+      });
+    }
+
+    if (currentFilters.city_equals) {
+      filterItems.push({
+        label: `City Equals: ${currentFilters.city_equals}`,
+        onRemove: () => handleRemoveFilter("city_equals"),
+      });
+    }
+
+    if (currentFilters.city_contains) {
+      filterItems.push({
+        label: `City Contains: ${currentFilters.city_contains}`,
+        onRemove: () => handleRemoveFilter("city_contains"),
+      });
+    }
+
+    // Number filters
+    if (currentFilters.score_equals) {
+      filterItems.push({
+        label: `Score Equals: ${currentFilters.score_equals}`,
+        onRemove: () => handleRemoveFilter("score_equals"),
+      });
+    }
+
+    if (currentFilters.score_gt) {
+      filterItems.push({
+        label: `Score > ${currentFilters.score_gt}`,
+        onRemove: () => handleRemoveFilter("score_gt"),
+      });
+    }
+
+    if (currentFilters.score_lt) {
+      filterItems.push({
+        label: `Score < ${currentFilters.score_lt}`,
+        onRemove: () => handleRemoveFilter("score_lt"),
+      });
+    }
+
+    if (currentFilters.score_between) {
+      const [min, max] = currentFilters.score_between.split(",");
+      filterItems.push({
+        label: `Score: ${min} - ${max}`,
+        onRemove: () => handleRemoveFilter("score_between"),
+      });
+    }
+
+    if (currentFilters.lead_value_equals) {
+      filterItems.push({
+        label: `Value Equals: $${currentFilters.lead_value_equals}`,
+        onRemove: () => handleRemoveFilter("lead_value_equals"),
+      });
+    }
+
+    if (currentFilters.lead_value_gt) {
+      filterItems.push({
+        label: `Value > $${currentFilters.lead_value_gt}`,
+        onRemove: () => handleRemoveFilter("lead_value_gt"),
+      });
+    }
+
+    if (currentFilters.lead_value_lt) {
+      filterItems.push({
+        label: `Value < $${currentFilters.lead_value_lt}`,
+        onRemove: () => handleRemoveFilter("lead_value_lt"),
+      });
+    }
+
+    if (currentFilters.lead_value_between) {
+      const [min, max] = currentFilters.lead_value_between.split(",");
+      filterItems.push({
+        label: `Value: $${min} - $${max}`,
+        onRemove: () => handleRemoveFilter("lead_value_between"),
+      });
+    }
+
+    // Date filters
+    if (currentFilters.created_on) {
+      filterItems.push({
+        label: `Created On: ${new Date(
+          currentFilters.created_on
+        ).toLocaleDateString()}`,
+        onRemove: () => handleRemoveFilter("created_on"),
+      });
+    }
+
+    if (currentFilters.created_after) {
+      filterItems.push({
+        label: `Created After: ${new Date(
           currentFilters.created_after
-        ).toLocaleDateString()} - ${new Date(
-          currentFilters.created_before
-        ).toLocaleDateString()}`;
-      } else if (currentFilters.created_after) {
-        dateLabel += `After ${new Date(
-          currentFilters.created_after
-        ).toLocaleDateString()}`;
-      } else if (currentFilters.created_before) {
-        dateLabel += `Before ${new Date(
-          currentFilters.created_before
-        ).toLocaleDateString()}`;
-      }
-
-      filterItems.push({
-        label: dateLabel,
-        onRemove: () => handleRemoveFilter("created_date"),
+        ).toLocaleDateString()}`,
+        onRemove: () => handleRemoveFilter("created_after"),
       });
     }
 
-    if (
-      currentFilters.last_activity_after ||
-      currentFilters.last_activity_before
-    ) {
-      let activityLabel = "Last Activity: ";
-      if (
-        currentFilters.last_activity_after &&
-        currentFilters.last_activity_before
-      ) {
-        activityLabel += `${new Date(
-          currentFilters.last_activity_after
-        ).toLocaleDateString()} - ${new Date(
-          currentFilters.last_activity_before
-        ).toLocaleDateString()}`;
-      } else if (currentFilters.last_activity_after) {
-        activityLabel += `After ${new Date(
-          currentFilters.last_activity_after
-        ).toLocaleDateString()}`;
-      } else if (currentFilters.last_activity_before) {
-        activityLabel += `Before ${new Date(
-          currentFilters.last_activity_before
-        ).toLocaleDateString()}`;
-      }
-
+    if (currentFilters.created_before) {
       filterItems.push({
-        label: activityLabel,
-        onRemove: () => handleRemoveFilter("activity_date"),
+        label: `Created Before: ${new Date(
+          currentFilters.created_before
+        ).toLocaleDateString()}`,
+        onRemove: () => handleRemoveFilter("created_before"),
       });
     }
 
+    if (currentFilters.created_between) {
+      const [start, end] = currentFilters.created_between.split(",");
+      filterItems.push({
+        label: `Created: ${new Date(start).toLocaleDateString()} - ${new Date(
+          end
+        ).toLocaleDateString()}`,
+        onRemove: () => handleRemoveFilter("created_between"),
+      });
+    }
+
+    if (currentFilters.last_activity_on) {
+      filterItems.push({
+        label: `Activity On: ${new Date(
+          currentFilters.last_activity_on
+        ).toLocaleDateString()}`,
+        onRemove: () => handleRemoveFilter("last_activity_on"),
+      });
+    }
+
+    if (currentFilters.last_activity_after) {
+      filterItems.push({
+        label: `Activity After: ${new Date(
+          currentFilters.last_activity_after
+        ).toLocaleDateString()}`,
+        onRemove: () => handleRemoveFilter("last_activity_after"),
+      });
+    }
+
+    if (currentFilters.last_activity_before) {
+      filterItems.push({
+        label: `Activity Before: ${new Date(
+          currentFilters.last_activity_before
+        ).toLocaleDateString()}`,
+        onRemove: () => handleRemoveFilter("last_activity_before"),
+      });
+    }
+
+    if (currentFilters.last_activity_between) {
+      const [start, end] = currentFilters.last_activity_between.split(",");
+      filterItems.push({
+        label: `Activity: ${new Date(start).toLocaleDateString()} - ${new Date(
+          end
+        ).toLocaleDateString()}`,
+        onRemove: () => handleRemoveFilter("last_activity_between"),
+      });
+    }
+
+    // Search term
     if (searchTerm) {
       filterItems.push({
         label: `Search: "${searchTerm}"`,
@@ -272,8 +408,6 @@ const LeadList = () => {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto py-20 px-6">
-        
-
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
           {/*search bar*/}
           <div className="flex-1 lg:max-w-2xl">
@@ -482,12 +616,11 @@ const LeadList = () => {
               <h3 className="text-xl font-semibold text-gray-900 mb-3">
                 No leads found
               </h3>
-              
+
               <p className="text-gray-600 mb-6">
-                {(Object.keys(currentFilters).length > 0 || searchTerm) 
+                {Object.keys(currentFilters).length > 0 || searchTerm
                   ? "Try adjusting your search or filters"
-                  : "Start building your sales pipeline"
-                }
+                  : "Start building your sales pipeline"}
               </p>
 
               <div className="flex gap-3 justify-center">
@@ -499,7 +632,7 @@ const LeadList = () => {
                     Clear Filters
                   </button>
                 )}
-                
+
                 <Link
                   to="/leads/new"
                   className="inline-flex items-center px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 border bg-[#8e24aa] text-white hover:bg-[#7b1fa2]"
