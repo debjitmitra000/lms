@@ -18,14 +18,13 @@ const register = async (req, res) => {
       password,
     });
 
-    //token generating
     const token = generateToken(user._id);
 
-    //http cookie - Fixed for production
+    // PRODUCTION FIX: Remove domain restrictions
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
@@ -36,6 +35,7 @@ const register = async (req, res) => {
         name: user.name,
         email: user.email,
       },
+      token, // SEND TOKEN IN RESPONSE TOO
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -59,11 +59,11 @@ const login = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    //http cookie - Fixed for production
+    // PRODUCTION FIX: Remove domain restrictions
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
@@ -74,6 +74,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
       },
+      token, // SEND TOKEN IN RESPONSE TOO
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -84,22 +85,22 @@ const login = async (req, res) => {
 const logout = (req, res) => {
   res.cookie("token", "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
+    secure: true,
+    sameSite: "none",
     expires: new Date(0),
   });
   res.json({ success: true, message: "Logged out successfully" });
 };
 
-//currentuser - FIXED THE MAIN ISSUE HERE
+//currentuser
 const getCurrentUser = async (req, res) => {
   try {
-    // Try both possible JWT payload structures
+    // Handle different JWT payload structures
     const userId = req.user.userId || req.user._id || req.user;
     const user = await User.findById(userId).select("-password");
     
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(401).json({ message: "User not found" });
     }
     
     res.json({
@@ -111,6 +112,7 @@ const getCurrentUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.log("getCurrentUser error:", error);
     res.status(500).json({ message: error.message });
   }
 };
