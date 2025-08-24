@@ -2,11 +2,48 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useLeads } from "../../context/LeadContext";
 
+//delete modal
+const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, leadName }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-10 flex items-center justify-center z-50 p-4">
+      <div className="bg-white/90 backdrop-blur-lg rounded-lg shadow-2xl max-w-md w-full mx-4 transform transition-all border border-gray-200/50">
+        <div className="p-8">
+          <h3 className="text-2xl font-bold text-gray-900 text-center mb-4">
+            Delete Lead
+          </h3>
+          <p className="text-gray-600 text-center mb-8 leading-relaxed">
+            Are you sure you want to delete <span className="font-semibold text-[#8e24aa]">{leadName}</span>? 
+            This action cannot be undone and all associated data will be permanently removed.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300  border border-[#8e24aa] text-[#8e24aa] hover:bg-[#e1bee7]"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              className="flex-1 px-6 py-2.5 text-sm font-medium text-white bg-[#8e24aa] border border-transparent rounded-full hover:bg-[#7b1fa2] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8e24aa] transition-all duration-300"
+            >
+              Delete Lead
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const LeadDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentLead, fetchLead, deleteLead, loading } = useLeads();
   const [copiedField, setCopiedField] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const colors = [
     "#8e24aa",
@@ -42,17 +79,32 @@ const LeadDetails = () => {
     }
   };
 
+  const handleBackNavigation = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/leads");
+    }
+  };
+
   useEffect(() => {
     if (id) {
       fetchLead(id);
     }
   }, [id]);
 
-  const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this lead?")) {
-      await deleteLead(id);
-      navigate("/leads");
-    }
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setShowDeleteModal(false);
+    await deleteLead(id);
+    navigate("/leads");
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
   };
 
   const getInitials = (firstName, lastName) => {
@@ -115,12 +167,12 @@ const LeadDetails = () => {
             <p className="text-gray-600 mb-6">
               The requested lead could not be found.
             </p>
-            <Link
-              to="/leads"
-              className="inline-flex items-center px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 bg-[#8e24aa] text-white shadow-md hover:bg-[#7b1fa2]"
+            <button
+              onClick={handleBackNavigation}
+              className="inline-flex items-center px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 bg-[#8e24aa] border-[#8e24aa] text-white shadow-md hover:bg-[#7b1fa2]"
             >
-              Back to All Leads
-            </Link>
+              Go Back
+            </button>
           </div>
         </div>
       </div>
@@ -143,15 +195,22 @@ const LeadDetails = () => {
         <div className="absolute bottom-[-20%] left-[-20%] w-96 h-96 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-[150px] opacity-30"></div>
       </div>
 
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        leadName={`${currentLead.first_name} ${currentLead.last_name}`}
+      />
+
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <Link
-              to="/leads"
-              className="px-6 py-3 border rounded-lg text-sm font-semibold text-white bg-[#8e24aa] hover:bg-[#7b1fa2] transition-all duration-200 shadow-lg"
+            <button
+              onClick={handleBackNavigation}
+              className="px-6 py-3 border rounded-lg text-sm font-semibold text-white bg-[#8e24aa] border-[#8e24aa] hover:bg-[#7b1fa2] transition-all duration-200 shadow-lg"
             >
-              Back to All Leads
-            </Link>
+              Go Back
+            </button>
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
@@ -161,7 +220,7 @@ const LeadDetails = () => {
                 Edit Lead
               </Link>
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 className="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 bg-[#8e24aa] text-white shadow-md hover:bg-[#7b1fa2]"
               >
                 Delete Lead
@@ -229,9 +288,7 @@ const LeadDetails = () => {
           </div>
         </div>
 
-        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Contact Information */}
           <div className="bg-white/90 backdrop-blur-lg rounded-lg shadow-lg border border-gray-200/50">
             <div className="px-6 py-4 border-b border-gray-200/50 bg-[#fbfcfd]">
               <h2 className="text-lg font-medium text-gray-900">
