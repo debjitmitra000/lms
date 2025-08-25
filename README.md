@@ -70,8 +70,8 @@ DELETE /api/leads/:id    # Delete lead
 
 ### 1. Clone the repository
 ```bash
-git clone <repository-url>
-cd lead-management-system
+git clone https://github.com/debjitmitra000/lms
+cd lms
 ```
 
 ### 2. Install dependencies
