@@ -1,4 +1,3 @@
-// backend/src/controllers/authController.js
 const User = require("../models/User");
 const { generateToken } = require("../config/jwt");
 
@@ -20,16 +19,15 @@ const register = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    // PRODUCTION FIX: Updated cookie configuration
+    //http cookie
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, 
       path: '/',
     };
 
-    // Add domain only in production if needed
     if (process.env.NODE_ENV === 'production' && process.env.COOKIE_DOMAIN) {
       cookieOptions.domain = process.env.COOKIE_DOMAIN;
     }
@@ -45,7 +43,7 @@ const register = async (req, res) => {
         name: user.name,
         email: user.email,
       },
-      token, // Keep token in response for fallback
+      token,
     });
   } catch (error) {
     console.error("Registration error:", error);
@@ -70,16 +68,14 @@ const login = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    // PRODUCTION FIX: Updated cookie configuration
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, 
       path: '/',
     };
 
-    // Add domain only in production if needed
     if (process.env.NODE_ENV === 'production' && process.env.COOKIE_DOMAIN) {
       cookieOptions.domain = process.env.COOKIE_DOMAIN;
     }
@@ -95,7 +91,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
       },
-      token, // Keep token in response for fallback
+      token,
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -113,7 +109,6 @@ const logout = (req, res) => {
     path: '/',
   };
 
-  // Add domain only in production if needed
   if (process.env.NODE_ENV === 'production' && process.env.COOKIE_DOMAIN) {
     cookieOptions.domain = process.env.COOKIE_DOMAIN;
   }
@@ -127,7 +122,6 @@ const logout = (req, res) => {
 //currentuser
 const getCurrentUser = async (req, res) => {
   try {
-    // Handle different JWT payload structures
     const userId = req.user.userId || req.user._id || req.user;
     const user = await User.findById(userId).select("-password");
     

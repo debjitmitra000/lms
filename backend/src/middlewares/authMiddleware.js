@@ -1,15 +1,13 @@
-// backend/src/middleware/authMiddleware.js
 const { verifyToken } = require("../config/jwt");
 
 const authMiddleware = (req, res, next) => {
   try {
-    // Debug: Check what cookies we're receiving
+    //debug
     console.log("🍪 All cookies:", req.cookies);
     
     let token = req.cookies.token;
     let tokenSource = "cookie";
     
-    // Fallback to Authorization header only if no cookie
     if (!token && req.headers.authorization) {
       token = req.headers.authorization.replace('Bearer ', '');
       tokenSource = "header";
