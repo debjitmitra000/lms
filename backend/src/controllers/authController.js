@@ -20,13 +20,23 @@ const register = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    // PRODUCTION FIX: Remove domain restrictions
-    res.cookie("token", token, {
+    // PRODUCTION FIX: Updated cookie configuration
+    const cookieOptions = {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/',
+    };
+
+    // Add domain only in production if needed
+    if (process.env.NODE_ENV === 'production' && process.env.COOKIE_DOMAIN) {
+      cookieOptions.domain = process.env.COOKIE_DOMAIN;
+    }
+
+    res.cookie("token", token, cookieOptions);
+
+    console.log(`✅ Registration successful, cookie set with options:`, cookieOptions);
 
     res.status(201).json({
       success: true,
@@ -35,9 +45,10 @@ const register = async (req, res) => {
         name: user.name,
         email: user.email,
       },
-      token, // SEND TOKEN IN RESPONSE TOO
+      token, // Keep token in response for fallback
     });
   } catch (error) {
+    console.error("Registration error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -59,13 +70,23 @@ const login = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    // PRODUCTION FIX: Remove domain restrictions
-    res.cookie("token", token, {
+    // PRODUCTION FIX: Updated cookie configuration
+    const cookieOptions = {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/',
+    };
+
+    // Add domain only in production if needed
+    if (process.env.NODE_ENV === 'production' && process.env.COOKIE_DOMAIN) {
+      cookieOptions.domain = process.env.COOKIE_DOMAIN;
+    }
+
+    res.cookie("token", token, cookieOptions);
+
+    console.log(`✅ Login successful for ${email}, cookie set with options:`, cookieOptions);
 
     res.json({
       success: true,
@@ -74,21 +95,32 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
       },
-      token, // SEND TOKEN IN RESPONSE TOO
+      token, // Keep token in response for fallback
     });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
 //logout
 const logout = (req, res) => {
-  res.cookie("token", "", {
+  const cookieOptions = {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     expires: new Date(0),
-  });
+    path: '/',
+  };
+
+  // Add domain only in production if needed
+  if (process.env.NODE_ENV === 'production' && process.env.COOKIE_DOMAIN) {
+    cookieOptions.domain = process.env.COOKIE_DOMAIN;
+  }
+
+  res.cookie("token", "", cookieOptions);
+  
+  console.log("✅ Logout successful, cookie cleared");
   res.json({ success: true, message: "Logged out successfully" });
 };
 
@@ -100,9 +132,11 @@ const getCurrentUser = async (req, res) => {
     const user = await User.findById(userId).select("-password");
     
     if (!user) {
+      console.log("❌ User not found in database for ID:", userId);
       return res.status(401).json({ message: "User not found" });
     }
     
+    console.log("✅ Current user retrieved:", user.email);
     res.json({
       success: true,
       user: {
@@ -112,7 +146,7 @@ const getCurrentUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("getCurrentUser error:", error);
+    console.log("❌ getCurrentUser error:", error);
     res.status(500).json({ message: error.message });
   }
 };
